@@ -1,0 +1,2240 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة أمن إنترنت الأشياء - تفسير تفاعلي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .device {
+            transition: all 0.3s ease;
+        }
+        .device.compromised {
+            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+        }
+        .device.protected {
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.8));
+        }
+        .attack-path {
+            stroke-dasharray: 5;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 10;
+            }
+        }
+        .defense-indicator {
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold mb-2">محاكاة أمن إنترنت الأشياء</h1>
+            <p class="text-lg text-gray-600">استكشاف تفاعلي للتهديدات والدفاعات في بيئات إنترنت الأشياء</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">ماذا لو كان بإمكانك رؤية كيفية انتشار الهجمات في شبكة إنترنت الأشياء؟</h2>
+            <p class="mb-4">تخيل أنك مسؤول عن تأمين شبكة من أجهزة إنترنت الأشياء في مبنى ذكي. كيف ستتفاعل الأجهزة المختلفة مع التهديدات؟ كيف ستؤثر تقنيات الأمان المختلفة على قدرة النظام على الصمود أمام الهجمات؟</p>
+            <p class="font-semibold">استخدم هذه المحاكاة لاستكشاف:</p>
+            <ul class="list-disc list-inside mb-4">
+                <li>كيف تنتشر الهجمات عبر شبكات إنترنت الأشياء</li>
+                <li>تأثير تقنيات الأمان المختلفة على حماية الأنظمة</li>
+                <li>التوازن بين الأمان وقيود الموارد في أجهزة إنترنت الأشياء</li>
+            </ul>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="mb-6 border-b border-gray-200">
+            <ul class="flex flex-wrap -mb-px" id="tabs">
+                <li class="ml-2">
+                    <button id="tab-network" class="inline-block p-4 border-b-2 border-blue-500 rounded-t-lg active" aria-current="page">محاكاة الشبكة</button>
+                </li>
+                <li class="ml-2">
+                    <button id="tab-technologies" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300">تقنيات الأمان</button>
+                </li>
+                <li class="ml-2">
+                    <button id="tab-metrics" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300">مقاييس الأمان</button>
+                </li>
+                <li class="ml-2">
+                    <button id="tab-learning" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300">مسار التعلم</button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content active" id="content-network">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">محاكاة شبكة إنترنت الأشياء</h3>
+                    <div class="network-visualization bg-gray-50 rounded-lg p-4 mb-4" style="height: 400px; position: relative;">
+                        <!-- SVG Network Visualization -->
+                        <svg id="network-svg" width="100%" height="100%" viewBox="0 0 800 400">
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+                                    markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="red" />
+                                </marker>
+                                <marker id="defense-arrow" viewBox="0 0 10 10" refX="5" refY="5"
+                                    markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="green" />
+                                </marker>
+                            </defs>
+                            
+                            <!-- Network Connections -->
+                            <line x1="400" y1="200" x2="200" y2="100" stroke="#ccc" stroke-width="2" />
+                            <line x1="400" y1="200" x2="200" y2="300" stroke="#ccc" stroke-width="2" />
+                            <line x1="400" y1="200" x2="600" y2="100" stroke="#ccc" stroke-width="2" />
+                            <line x1="400" y1="200" x2="600" y2="300" stroke="#ccc" stroke-width="2" />
+                            
+                            <!-- Attack Paths (initially hidden) -->
+                            <path id="attack-path-1" class="attack-path" d="M 700 50 L 600 100" stroke="red" stroke-width="3" opacity="0" marker-end="url(#arrow)" />
+                            <path id="attack-path-2" class="attack-path" d="M 600 100 L 400 200" stroke="red" stroke-width="3" opacity="0" marker-end="url(#arrow)" />
+                            <path id="attack-path-3" class="attack-path" d="M 400 200 L 200 300" stroke="red" stroke-width="3" opacity="0" marker-end="url(#arrow)" />
+                            
+                            <!-- Defense Indicators (initially hidden) -->
+                            <path id="defense-path-1" class="defense-indicator" d="M 400 200 L 600 100" stroke="green" stroke-width="3" opacity="0" marker-end="url(#defense-arrow)" />
+                            <path id="defense-path-2" class="defense-indicator" d="M 400 200 L 200 100" stroke="green" stroke-width="3" opacity="0" marker-end="url(#defense-arrow)" />
+                            
+                            <!-- Devices -->
+                            <g id="gateway" class="device" transform="translate(400, 200)">
+                                <rect x="-30" y="-30" width="60" height="60" rx="5" fill="#4299e1" />
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="12">بوابة</text>
+                            </g>
+                            
+                            <g id="device-1" class="device" transform="translate(200, 100)">
+                                <circle cx="0" cy="0" r="25" fill="#48bb78" />
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="12">كاميرا</text>
+                            </g>
+                            
+                            <g id="device-2" class="device" transform="translate(200, 300)">
+                                <circle cx="0" cy="0" r="25" fill="#48bb78" />
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="12">ثرموستات</text>
+                            </g>
+                            
+                            <g id="device-3" class="device" transform="translate(600, 100)">
+                                <circle cx="0" cy="0" r="25" fill="#48bb78" />
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="12">قفل ذكي</text>
+                            </g>
+                            
+                            <g id="device-4" class="device" transform="translate(600, 300)">
+                                <circle cx="0" cy="0" r="25" fill="#48bb78" />
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="12">مستشعر</text>
+                            </g>
+                            
+                            <!-- Attacker (initially outside) -->
+                            <g id="attacker" class="device" transform="translate(700, 50)">
+                                <polygon points="0,-20 15,15 -15,15" fill="#e53e3e" />
+                                <text x="0" y="30" text-anchor="middle" fill="#e53e3e" font-size="12">مهاجم</text>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <div>
+                            <span class="font-bold">الوقت المنقضي:</span> <span id="simulation-time">0</span> ثانية
+                        </div>
+                        <div>
+                            <span class="font-bold">الأجهزة المخترقة:</span> <span id="compromised-count">0</span> من 5
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div id="event-log" class="bg-gray-50 p-3 rounded-lg h-32 overflow-y-auto text-sm">
+                            <div class="text-gray-500">سجل الأحداث سيظهر هنا...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">إعدادات المحاكاة</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-2">نوع الهجوم</h4>
+                        <select id="attack-type" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="ddos">هجوم حجب الخدمة الموزع (DDoS)</option>
+                            <option value="mitm">هجوم الرجل في الوسط (MitM)</option>
+                            <option value="botnet">شبكة روبوتية (Botnet)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-2">تقنيات الأمان المطبقة</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="security-blockchain" class="ml-2">
+                                <span>تقنية البلوكتشين</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="security-ml" class="ml-2">
+                                <span>التعلم الآلي للكشف عن الشذوذ</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="security-edge" class="ml-2">
+                                <span>الحوسبة الطرفية</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="security-encryption" class="ml-2">
+                                <span>التشفير خفيف الوزن</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-2">قيود الموارد</h4>
+                        <div class="mb-2">
+                            <label class="block mb-1">قوة المعالجة</label>
+                            <input type="range" id="resource-cpu" min="1" max="10" value="5" class="w-full">
+                            <div class="flex justify-between text-xs">
+                                <span>منخفضة</span>
+                                <span>عالية</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block mb-1">طاقة البطارية</label>
+                            <input type="range" id="resource-battery" min="1" max="10" value="5" class="w-full">
+                            <div class="flex justify-between text-xs">
+                                <span>محدودة</span>
+                                <span>وفيرة</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4 space-x-reverse">
+                        <button id="start-simulation" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                            بدء المحاكاة
+                        </button>
+                        <button id="reset-simulation" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded">
+                            إعادة ضبط
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="content-technologies">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">تقنيات الأمان في إنترنت الأشياء</h3>
+                    
+                    <div class="mb-6">
+                        <div class="chart-container">
+                            <canvas id="tech-effectiveness-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-bold mb-2">قارن بين التقنيات</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block mb-1">التقنية الأولى</label>
+                                <select id="tech-compare-1" class="w-full p-2 border border-gray-300 rounded">
+                                    <option value="blockchain">البلوكتشين</option>
+                                    <option value="ml">التعلم الآلي</option>
+                                    <option value="edge">الحوسبة الطرفية</option>
+                                    <option value="encryption">التشفير خفيف الوزن</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-1">التقنية الثانية</label>
+                                <select id="tech-compare-2" class="w-full p-2 border border-gray-300 rounded">
+                                    <option value="blockchain">البلوكتشين</option>
+                                    <option value="ml" selected>التعلم الآلي</option>
+                                    <option value="edge">الحوسبة الطرفية</option>
+                                    <option value="encryption">التشفير خفيف الوزن</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-2">نوع التهديد</h4>
+                        <select id="threat-type" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="ddos">هجوم حجب الخدمة الموزع (DDoS)</option>
+                            <option value="mitm">هجوم الرجل في الوسط (MitM)</option>
+                            <option value="botnet">شبكة روبوتية (Botnet)</option>
+                            <option value="firmware">ثغرات البرامج الثابتة</option>
+                            <option value="privacy">انتهاكات الخصوصية</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">تفاصيل التقنية</h3>
+                    <div id="tech-details" class="mb-6">
+                        <h4 id="tech-name" class="text-lg font-bold mb-2">البلوكتشين</h4>
+                        <p id="tech-description" class="mb-4">تقنية تستخدم لتأمين تبادل البيانات ومنع التزوير وتوفير سجلات غير قابلة للتلاعب من خلال دفاتر الأستاذ اللامركزية.</p>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-bold mb-1">الميزات الرئيسية:</h5>
+                            <ul id="tech-features" class="list-disc list-inside">
+                                <li>استخدام أشجار ميركل</li>
+                                <li>تشفير المفتاح العام والخاص</li>
+                                <li>تكييفات خاصة بإنترنت الأشياء مثل IOTA/Tangle</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-bold mb-1">الفوائد:</h5>
+                            <ul id="tech-benefits" class="list-disc list-inside">
+                                <li>القضاء على نقاط الفشل المركزية</li>
+                                <li>دعم مصدر البيانات الموثوق</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-bold mb-1">التحديات:</h5>
+                            <ul id="tech-challenges" class="list-disc list-inside">
+                                <li>متطلبات معالجة عالية</li>
+                                <li>قضايا التوسع مع أجهزة إنترنت الأشياء المحدودة</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-2">تأثير قيود الموارد</h4>
+                        <div class="chart-container">
+                            <canvas id="resource-impact-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="content-metrics">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">مقاييس الأمان</h3>
+                    
+                    <div class="mb-6">
+                        <div class="chart-container">
+                            <canvas id="security-metrics-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-2">تحليل المخاطر</h4>
+                        <div class="chart-container">
+                            <canvas id="risk-analysis-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">تأثير تقنيات الأمان المتعددة</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-2">اختر التقنيات للمقارنة</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="compare-blockchain" class="ml-2" checked>
+                                <span>البلوكتشين</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="compare-ml" class="ml-2" checked>
+                                <span>التعلم الآلي</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="compare-edge" class="ml-2">
+                                <span>الحوسبة الطرفية</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="compare-encryption" class="ml-2">
+                                <span>التشفير خفيف الوزن</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-2">تأثير الدفاعات المتعددة</h4>
+                        <div class="chart-container">
+                            <canvas id="combined-defense-chart"></canvas>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-600">ملاحظة: يوضح هذا الرسم البياني كيف يمكن للجمع بين تقنيات متعددة أن يوفر حماية أفضل من استخدام تقنية واحدة فقط.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="content-learning">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold mb-4">مسار التعلم: من الآليات الفردية إلى الأنظمة المعقدة</h3>
+                
+                <div class="mb-6">
+                    <div class="flex mb-4">
+                        <div class="w-1/4 text-center">
+                            <div class="mx-auto w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">1</div>
+                            <p class="mt-2">آليات أساسية</p>
+                        </div>
+                        <div class="w-1/4 text-center">
+                            <div class="mx-auto w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">2</div>
+                            <p class="mt-2">تفاعلات بسيطة</p>
+                        </div>
+                        <div class="w-1/4 text-center">
+                            <div class="mx-auto w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">3</div>
+                            <p class="mt-2">أنظمة متوسطة</p>
+                        </div>
+                        <div class="w-1/4 text-center">
+                            <div class="mx-auto w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">4</div>
+                            <p class="mt-2">أنظمة معقدة</p>
+                        </div>
+                    </div>
+                    
+                    <div id="learning-stage-content">
+                        <h4 class="font-bold mb-2">المرحلة 1: فهم الآليات الأساسية</h4>
+                        <p class="mb-4">في هذه المرحلة، نتعرف على المفاهيم الأساسية لأمن إنترنت الأشياء والتهديدات الشائعة وآليات الدفاع الأساسية.</p>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-bold mb-1">اختر آلية للدراسة:</h5>
+                            <select id="mechanism-select" class="w-full p-2 border border-gray-300 rounded mb-4">
+                                <option value="authentication">المصادقة والتفويض</option>
+                                <option value="encryption">التشفير وسلامة البيانات</option>
+                                <option value="detection">كشف التسلل والشذوذ</option>
+                            </select>
+                            
+                            <div id="mechanism-details">
+                                <h5 class="font-bold mb-2">المصادقة والتفويض</h5>
+                                <p class="mb-2">المصادقة هي عملية التحقق من هوية جهاز أو مستخدم، بينما التفويض يحدد ما يمكن لهذا الجهاز أو المستخدم الوصول إليه.</p>
+                                
+                                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <h6 class="font-bold mb-2">تجربة: تأثير قوة كلمة المرور</h6>
+                                    <div class="mb-2">
+                                        <label class="block mb-1">أدخل كلمة مرور للاختبار:</label>
+                                        <input type="text" id="password-input" class="w-full p-2 border border-gray-300 rounded" placeholder="أدخل كلمة مرور...">
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div id="password-strength" class="bg-red-500 h-2.5 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <p id="password-feedback" class="text-sm text-gray-600">أدخل كلمة مرور للحصول على تقييم.</p>
+                                    <p class="text-sm mt-2">الوقت التقديري للكسر: <span id="crack-time">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="next-stage" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                            الانتقال إلى المرحلة التالية
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function logEvent(message) {
+            try {
+                const eventLog = document.getElementById('event-log');
+                if (!eventLog) {
+                    console.error('Event log element not found');
+                    return;
+                }
+                
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${message}`;
+                eventLog.appendChild(logEntry);
+                eventLog.scrollTop = eventLog.scrollHeight;
+            } catch (error) {
+                console.error('Error logging event:', error);
+            }
+        }
+
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const tabs = document.querySelectorAll('#tabs button');
+                const contents = document.querySelectorAll('.tab-content');
+                
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        // Remove active class from all tabs
+                        tabs.forEach(t => {
+                            t.classList.remove('border-blue-500');
+                            t.classList.add('border-transparent');
+                            t.classList.add('hover:border-gray-300');
+                            t.removeAttribute('aria-current');
+                        });
+                        
+                        // Add active class to clicked tab
+                        tab.classList.add('border-blue-500');
+                        tab.classList.remove('border-transparent');
+                        tab.classList.remove('hover:border-gray-300');
+                        tab.setAttribute('aria-current', 'page');
+                        
+                        // Hide all content
+                        contents.forEach(content => {
+                            content.classList.remove('active');
+                        });
+                        
+                        // Show corresponding content
+                        const contentId = 'content-' + tab.id.split('-')[1];
+                        document.getElementById(contentId).classList.add('active');
+                        
+                        // Initialize charts if needed
+                        if (contentId === 'content-technologies') {
+                            initTechCharts();
+                        } else if (contentId === 'content-metrics') {
+                            initMetricsCharts();
+                        }
+                    });
+                });
+                
+                // Initialize network simulation
+                initNetworkSimulation();
+                
+                // Initialize password strength meter
+                initPasswordStrengthMeter();
+                
+                // Initialize learning path
+                initLearningPath();
+                
+                console.log('All components initialized successfully');
+            } catch (error) {
+                console.error('Error initializing tabs:', error);
+            }
+        });
+
+        // Network Simulation
+        let simulationRunning = false;
+        let simulationTime = 0;
+        let compromisedDevices = 0;
+        let simulationInterval;
+        let attackPaths = [];
+        let defensePaths = [];
+
+        function initNetworkSimulation() {
+            try {
+                const startButton = document.getElementById('start-simulation');
+                const resetButton = document.getElementById('reset-simulation');
+                
+                if (!startButton || !resetButton) {
+                    console.error('Simulation buttons not found');
+                    return;
+                }
+                
+                startButton.addEventListener('click', startSimulation);
+                resetButton.addEventListener('click', resetSimulation);
+                
+                // Initialize attack paths
+                attackPaths = [
+                    document.getElementById('attack-path-1'),
+                    document.getElementById('attack-path-2'),
+                    document.getElementById('attack-path-3')
+                ];
+                
+                // Initialize defense paths
+                defensePaths = [
+                    document.getElementById('defense-path-1'),
+                    document.getElementById('defense-path-2')
+                ];
+                
+                console.log('Network simulation initialized');
+            } catch (error) {
+                console.error('Error initializing network simulation:', error);
+            }
+        }
+
+        function startSimulation() {
+            try {
+                if (simulationRunning) return;
+                
+                simulationRunning = true;
+                document.getElementById('start-simulation').textContent = 'إيقاف المحاكاة';
+                document.getElementById('start-simulation').addEventListener('click', stopSimulation);
+                document.getElementById('start-simulation').removeEventListener('click', startSimulation);
+                
+                // Reset counters
+                simulationTime = 0;
+                compromisedDevices = 0;
+                document.getElementById('simulation-time').textContent = simulationTime;
+                document.getElementById('compromised-count').textContent = compromisedDevices;
+                
+                // Get selected attack type and security technologies
+                const attackType = document.getElementById('attack-type').value;
+                const securityTechnologies = {
+                    blockchain: document.getElementById('security-blockchain').checked,
+                    ml: document.getElementById('security-ml').checked,
+                    edge: document.getElementById('security-edge').checked,
+                    encryption: document.getElementById('security-encryption').checked
+                };
+                
+                // Get resource constraints
+                const resourceCPU = parseInt(document.getElementById('resource-cpu').value);
+                const resourceBattery = parseInt(document.getElementById('resource-battery').value);
+                
+                logEvent(`بدء محاكاة هجوم ${getAttackTypeName(attackType)}`);
+                
+                if (Object.values(securityTechnologies).some(tech => tech)) {
+                    logEvent(`تقنيات الأمان المفعلة: ${getEnabledTechnologies(securityTechnologies)}`);
+                } else {
+                    logEvent('تحذير: لا توجد تقنيات أمان مفعلة!');
+                }
+                
+                // Start simulation loop
+                simulationInterval = setInterval(() => {
+                    updateSimulation(attackType, securityTechnologies, resourceCPU, resourceBattery);
+                }, 1000);
+            } catch (error) {
+                console.error('Error starting simulation:', error);
+                stopSimulation();
+            }
+        }
+
+        function updateSimulation(attackType, securityTechnologies, resourceCPU, resourceBattery) {
+            try {
+                simulationTime++;
+                document.getElementById('simulation-time').textContent = simulationTime;
+                
+                // Simulation logic based on time
+                if (simulationTime === 1) {
+                    // Attack starts
+                    logEvent('المهاجم يبدأ بمسح الشبكة بحثًا عن نقاط ضعف');
+                    attackPaths[0].setAttribute('opacity', '1');
+                }
+                
+                if (simulationTime === 3) {
+                    // Attack progresses to first device if no ML detection
+                    if (!securityTechnologies.ml) {
+                        logEvent('المهاجم يستهدف القفل الذكي');
+                        document.getElementById('device-3').classList.add('compromised');
+                        compromisedDevices++;
+                        document.getElementById('compromised-count').textContent = compromisedDevices;
+                        attackPaths[1].setAttribute('opacity', '1');
+                    } else {
+                        logEvent('نظام التعلم الآلي يكتشف نشاطًا مشبوهًا ويصدر تنبيهًا');
+                        defensePaths[0].setAttribute('opacity', '1');
+                    }
+                }
+                
+                if (simulationTime === 5) {
+                    // Attack reaches gateway if no blockchain
+                    if (!securityTechnologies.blockchain && !securityTechnologies.ml) {
+                        logEvent('المهاجم يخترق بوابة الشبكة');
+                        document.getElementById('gateway').classList.add('compromised');
+                        compromisedDevices++;
+                        document.getElementById('compromised-count').textContent = compromisedDevices;
+                        attackPaths[2].setAttribute('opacity', '1');
+                    } else if (securityTechnologies.blockchain) {
+                        logEvent('تقنية البلوكتشين تمنع تزوير هوية الأجهزة في البوابة');
+                        defensePaths[1].setAttribute('opacity', '1');
+                    }
+                }
+                
+                if (simulationTime === 7) {
+                    // Attack spreads to other devices if gateway compromised
+                    if (document.getElementById('gateway').classList.contains('compromised')) {
+                        logEvent('المهاجم ينتشر إلى باقي الأجهزة في الشبكة');
+                        document.getElementById('device-2').classList.add('compromised');
+                        compromisedDevices++;
+                        document.getElementById('compromised-count').textContent = compromisedDevices;
+                    }
+                }
+                
+                if (simulationTime === 10) {
+                    // End simulation
+                    logEvent(`انتهت المحاكاة. الأجهزة المخترقة: ${compromisedDevices} من 5`);
+                    stopSimulation();
+                }
+            } catch (error) {
+                console.error('Error updating simulation:', error);
+                stopSimulation();
+            }
+        }
+
+        function stopSimulation() {
+            try {
+                clearInterval(simulationInterval);
+                simulationRunning = false;
+                document.getElementById('start-simulation').textContent = 'بدء المحاكاة';
+                document.getElementById('start-simulation').addEventListener('click', startSimulation);
+                document.getElementById('start-simulation').removeEventListener('click', stopSimulation);
+            } catch (error) {
+                console.error('Error stopping simulation:', error);
+            }
+        }
+
+        function resetSimulation() {
+            try {
+                stopSimulation();
+                
+                // Reset time and counters
+                simulationTime = 0;
+                compromisedDevices = 0;
+                document.getElementById('simulation-time').textContent = simulationTime;
+                document.getElementById('compromised-count').textContent = compromisedDevices;
+                
+                // Reset devices
+                const devices = document.querySelectorAll('.device');
+                devices.forEach(device => {
+                    device.classList.remove('compromised');
+                    device.classList.remove('protected');
+                });
+                
+                // Reset attack paths
+                attackPaths.forEach(path => {
+                    path.setAttribute('opacity', '0');
+                });
+                
+                // Reset defense paths
+                defensePaths.forEach(path => {
+                    path.setAttribute('opacity', '0');
+                });
+                
+                // Clear event log
+                document.getElementById('event-log').innerHTML = '<div class="text-gray-500">سجل الأحداث سيظهر هنا...</div>';
+                
+                logEvent('تم إعادة ضبط المحاكاة');
+            } catch (error) {
+                console.error('Error resetting simulation:', error);
+            }
+        }
+
+        function getAttackTypeName(attackType) {
+            const attackNames = {
+                'ddos': 'حجب الخدمة الموزع (DDoS)',
+                'mitm': 'الرجل في الوسط (MitM)',
+                'botnet': 'شبكة روبوتية (Botnet)'
+            };
+            return attackNames[attackType] || attackType;
+        }
+
+        function getEnabledTechnologies(securityTechnologies) {
+            try {
+                const techNames = {
+                    'blockchain': 'البلوكتشين',
+                    'ml': 'التعلم الآلي',
+                    'edge': 'الحوسبة الطرفية',
+                    'encryption': 'التشفير خفيف الوزن'
+                };
+                
+                return Object.entries(securityTechnologies)
+                    .filter(([_, enabled]) => enabled)
+                    .map(([tech, _]) => techNames[tech])
+                    .join('، ');
+            } catch (error) {
+                console.error('Error getting enabled technologies:', error);
+                return '';
+            }
+        }
+
+        // Technology Charts
+        let techEffectivenessChart;
+        let resourceImpactChart;
+
+        function initTechCharts() {
+            try {
+                // Destroy existing charts if they exist
+                if (techEffectivenessChart) {
+                    techEffectivenessChart.destroy();
+                }
+                if (resourceImpactChart) {
+                    resourceImpactChart.destroy();
+                }
+                
+                // Initialize tech effectiveness chart
+                const techEffectivenessCtx = document.getElementById('tech-effectiveness-chart').getContext('2d');
+                techEffectivenessChart = new Chart(techEffectivenessCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['هجوم DDoS', 'هجوم MitM', 'شبكة روبوتية', 'ثغرات البرامج الثابتة', 'انتهاكات الخصوصية'],
+                        datasets: [
+                            {
+                                label: 'البلوكتشين',
+                                data: [60, 85, 50, 40, 75],
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'التعلم الآلي',
+                                data: [80, 60, 90, 70, 65],
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 100
+                            }
+                        }
+                    }
+                });
+                
+                // Initialize resource impact chart
+                const resourceImpactCtx = document.getElementById('resource-impact-chart').getContext('2d');
+                resourceImpactChart = new Chart(resourceImpactCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['استهلاك الطاقة', 'متطلبات المعالجة', 'استخدام الذاكرة', 'عرض النطاق الترددي'],
+                        datasets: [
+                            {
+                                label: 'البلوكتشين',
+                                data: [80, 85, 70, 60],
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                
+                // Set up event listeners for technology comparison
+                document.getElementById('tech-compare-1').addEventListener('change', updateTechComparison);
+                document.getElementById('tech-compare-2').addEventListener('change', updateTechComparison);
+                document.getElementById('threat-type').addEventListener('change', updateTechDetails);
+                
+                // Initial update
+                updateTechComparison();
+                updateTechDetails();
+                
+                console.log('Technology charts initialized');
+            } catch (error) {
+                console.error('Error initializing technology charts:', error);
+            }
+        }
+
+        function updateTechComparison() {
+            try {
+                const tech1 = document.getElementById('tech-compare-1').value;
+                const tech2 = document.getElementById('tech-compare-2').value;
+                
+                // Technology effectiveness data
+                const techData = {
+                    blockchain: {
+                        ddos: 60,
+                        mitm: 85,
+                        botnet: 50,
+                        firmware: 40,
+                        privacy: 75
+                    },
+                    ml: {
+                        ddos: 80,
+                        mitm: 60,
+                        botnet: 90,
+                        firmware: 70,
+                        privacy: 65
+                    },
+                    edge: {
+                        ddos: 75,
+                        mitm: 50,
+                        botnet: 65,
+                        firmware: 60,
+                        privacy: 80
+                    },
+                    encryption: {
+                        ddos: 40,
+                        mitm: 90,
+                        botnet: 30,
+                        firmware: 50,
+                        privacy: 95
+                    }
+                };
+                
+                // Update chart data
+                techEffectivenessChart.data.datasets[0].label = getTechName(tech1);
+                techEffectivenessChart.data.datasets[0].data = [
+                    techData[tech1].ddos,
+                    techData[tech1].mitm,
+                    techData[tech1].botnet,
+                    techData[tech1].firmware,
+                    techData[tech1].privacy
+                ];
+                
+                techEffectivenessChart.data.datasets[1].label = getTechName(tech2);
+                techEffectivenessChart.data.datasets[1].data = [
+                    techData[tech2].ddos,
+                    techData[tech2].mitm,
+                    techData[tech2].botnet,
+                    techData[tech2].firmware,
+                    techData[tech2].privacy
+                ];
+                
+                techEffectivenessChart.update();
+                
+                // Update resource impact chart
+                const resourceData = {
+                    blockchain: [80, 85, 70, 60],
+                    ml: [65, 90, 85, 40],
+                    edge: [40, 60, 50, 30],
+                    encryption: [50, 45, 30, 20]
+                };
+                
+                resourceImpactChart.data.datasets[0].label = getTechName(tech1);
+                resourceImpactChart.data.datasets[0].data = resourceData[tech1];
+                
+                // Add or update second dataset
+                if (resourceImpactChart.data.datasets.length < 2) {
+                    resourceImpactChart.data.datasets.push({
+                        label: getTechName(tech2),
+                        data: resourceData[tech2],
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                    });
+                } else {
+                    resourceImpactChart.data.datasets[1].label = getTechName(tech2);
+                    resourceImpactChart.data.datasets[1].data = resourceData[tech2];
+                }
+                
+                resourceImpactChart.update();
+                
+                // Update tech details
+                updateTechDetails();
+            } catch (error) {
+                console.error('Error updating technology comparison:', error);
+            }
+        }
+
+        function updateTechDetails() {
+            try {
+                const tech = document.getElementById('tech-compare-1').value;
+                const threat = document.getElementById('threat-type').value;
+                
+                // Technology details
+                const techDetails = {
+                    blockchain: {
+                        name: 'تقنية البلوكتشين',
+                        description: 'تقنية تستخدم لتأمين تبادل البيانات ومنع التزوير وتوفير سجلات غير قابلة للتلاعب من خلال دفاتر الأستاذ اللامركزية.',
+                        features: [
+                            'استخدام أشجار ميركل',
+                            'تشفير المفتاح العام والخاص',
+                            'تكييفات خاصة بإنترنت الأشياء مثل IOTA/Tangle'
+                        ],
+                        benefits: [
+                            'القضاء على نقاط الفشل المركزية',
+                            'دعم مصدر البيانات الموثوق'
+                        ],
+                        challenges: [
+                            'متطلبات معالجة عالية',
+                            'قضايا التوسع مع أجهزة إنترنت الأشياء المحدودة'
+                        ]
+                    },
+                    ml: {
+                        name: 'التعلم الآلي',
+                        description: 'يستخدم للكشف عن الشذوذ في الوقت الفعلي، والتحليلات التنبؤية، وتصنيف التهديدات على أساس السلوك.',
+                        features: [
+                            'أشجار القرار',
+                            'الشبكات العصبية متعددة الطبقات',
+                            'خوارزميات التجميع وآلات المتجهات الداعمة'
+                        ],
+                        benefits: [
+                            'الكشف الاستباقي عن التهديدات',
+                            'التكيف مع أنماط الهجوم الجديدة'
+                        ],
+                        challenges: [
+                            'يتطلب بيانات تدريب كبيرة',
+                            'قد يستهلك موارد كبيرة للتحليل في الوقت الفعلي'
+                        ]
+                    },
+                    edge: {
+                        name: 'الحوسبة الطرفية',
+                        description: 'تعالج البيانات مباشرة على أجهزة إنترنت الأشياء أو بالقرب منها، مما يقلل الاعتماد على السحابة.',
+                        features: [
+                            'معالجة محلية للبيانات',
+                            'بنية لامركزية',
+                            'تقليل زمن الاستجابة'
+                        ],
+                        benefits: [
+                            'تعزيز الخصوصية',
+                            'تحسين اتخاذ القرار في الوقت الفعلي'
+                        ],
+                        challenges: [
+                            'قيود الموارد على الأجهزة الطرفية',
+                            'تحديات في إدارة التحديثات الأمنية'
+                        ]
+                    },
+                    encryption: {
+                        name: 'التشفير خفيف الوزن',
+                        description: 'خوارزميات تشفير مصممة خصيصًا للأجهزة ذات الموارد المحدودة، توفر التوازن بين الأمان والأداء.',
+                        features: [
+                            'تشفير المنحنى الإهليلجي (ECC)',
+                            'بروتوكول DTLS (طبقة أمان نقل البيانات)',
+                            'خوارزميات التشفير المتماثل خفيفة الوزن'
+                        ],
+                        benefits: [
+                            'كفاءة استهلاك الطاقة',
+                            'متطلبات معالجة منخفضة'
+                        ],
+                        challenges: [
+                            'قد تكون أقل أمانًا من نظيراتها كاملة الوزن',
+                            'تحديات في إدارة المفاتيح'
+                        ]
+                    }
+                };
+                
+                // Threat-specific effectiveness
+                const threatEffectiveness = {
+                    ddos: {
+                        blockchain: 'متوسطة الفعالية. يمكن أن تساعد في التحقق من صحة الأجهزة ولكنها لا تمنع هجمات حجب الخدمة مباشرة.',
+                        ml: 'فعالة جدًا. يمكن اكتشاف أنماط حركة المرور غير الطبيعية وتخفيفها في الوقت الفعلي.',
+                        edge: 'فعالة. تقلل من تأثير الهجمات من خلال توزيع نقاط المعالجة.',
+                        encryption: 'فعالية منخفضة. التشفير وحده لا يمنع هجمات حجب الخدمة.'
+                    },
+                    mitm: {
+                        blockchain: 'فعالة جدًا. توفر سلامة البيانات والتحقق من الهوية لمنع هجمات الرجل في الوسط.',
+                        ml: 'فعالية متوسطة. يمكن اكتشاف بعض أنماط هجمات MitM ولكن ليس كلها.',
+                        edge: 'فعالية متوسطة. تقلل من نقاط الضعف من خلال تقليل نقل البيانات عبر الشبكة.',
+                        encryption: 'فعالة للغاية. التشفير من نقطة إلى نقطة يمنع اعتراض البيانات.'
+                    },
+                    botnet: {
+                        blockchain: 'فعالية متوسطة. تساعد في التحقق من هوية الأجهزة ولكنها لا تمنع الاستيلاء عليها.',
+                        ml: 'فعالة جدًا. يمكن اكتشاف سلوك الأجهزة غير الطبيعي الذي يشير إلى الإصابة.',
+                        edge: 'فعالية متوسطة. يمكن أن تساعد في عزل الأجهزة المصابة.',
+                        encryption: 'فعالية منخفضة. لا تمنع مباشرة استغلال ثغرات الأجهزة.'
+                    },
+                    firmware: {
+                        blockchain: 'فعالية متوسطة. يمكن التحقق من سلامة تحديثات البرامج الثابتة.',
+                        ml: 'فعالة. يمكن اكتشاف محاولات استغلال ثغرات البرامج الثابتة.',
+                        edge: 'فعالية متوسطة. تسهل التحديثات الآمنة والمراقبة المحلية.',
+                        encryption: 'فعالية متوسطة. تحمي البرامج الثابتة أثناء النقل ولكن ليس من الثغرات نفسها.'
+                    },
+                    privacy: {
+                        blockchain: 'فعالة. توفر الشفافية والتحكم في الوصول إلى البيانات.',
+                        ml: 'فعالية متوسطة. يمكن اكتشاف تسرب البيانات ولكنها قد تتطلب بيانات حساسة للتدريب.',
+                        edge: 'فعالة جدًا. تقلل من نقل البيانات الحساسة عبر الشبكة.',
+                        encryption: 'فعالة للغاية. تضمن سرية البيانات الحساسة.'
+                    }
+                };
+                
+                // Update tech details
+                document.getElementById('tech-name').textContent = techDetails[tech].name;
+                document.getElementById('tech-description').textContent = techDetails[tech].description;
+                
+                // Update features
+                const featuresElement = document.getElementById('tech-features');
+                featuresElement.innerHTML = '';
+                techDetails[tech].features.forEach(feature => {
+                    const li = document.createElement('li');
+                    li.textContent = feature;
+                    featuresElement.appendChild(li);
+                });
+                
+                // Update benefits
+                const benefitsElement = document.getElementById('tech-benefits');
+                benefitsElement.innerHTML = '';
+                techDetails[tech].benefits.forEach(benefit => {
+                    const li = document.createElement('li');
+                    li.textContent = benefit;
+                    benefitsElement.appendChild(li);
+                });
+                
+                // Update challenges
+                const challengesElement = document.getElementById('tech-challenges');
+                challengesElement.innerHTML = '';
+                techDetails[tech].challenges.forEach(challenge => {
+                    const li = document.createElement('li');
+                    li.textContent = challenge;
+                    challengesElement.appendChild(li);
+                });
+                
+                // Add threat-specific effectiveness
+                if (threatEffectiveness[threat] && threatEffectiveness[threat][tech]) {
+                    const effectivenessElement = document.createElement('div');
+                    effectivenessElement.className = 'mt-4';
+                    effectivenessElement.innerHTML = `
+                        <h5 class="font-bold mb-1">الفعالية ضد ${getThreatName(threat)}:</h5>
+                        <p>${threatEffectiveness[threat][tech]}</p>
+                    `;
+                    document.getElementById('tech-details').appendChild(effectivenessElement);
+                }
+            } catch (error) {
+                console.error('Error updating tech details:', error);
+            }
+        }
+
+        function getTechName(techId) {
+            const techNames = {
+                'blockchain': 'البلوكتشين',
+                'ml': 'التعلم الآلي',
+                'edge': 'الحوسبة الطرفية',
+                'encryption': 'التشفير خفيف الوزن'
+            };
+            return techNames[techId] || techId;
+        }
+
+        function getThreatName(threatId) {
+            const threatNames = {
+                'ddos': 'هجوم حجب الخدمة الموزع (DDoS)',
+                'mitm': 'هجوم الرجل في الوسط (MitM)',
+                'botnet': 'شبكة روبوتية (Botnet)',
+                'firmware': 'ثغرات البرامج الثابتة',
+                'privacy': 'انتهاكات الخصوصية'
+            };
+            return threatNames[threatId] || threatId;
+        }
+
+        // Metrics Charts
+        let securityMetricsChart;
+        let riskAnalysisChart;
+        let combinedDefenseChart;
+
+        function initMetricsCharts() {
+            try {
+                // Destroy existing charts if they exist
+                if (securityMetricsChart) {
+                    securityMetricsChart.destroy();
+                }
+                if (riskAnalysisChart) {
+                    riskAnalysisChart.destroy();
+                }
+                if (combinedDefenseChart) {
+                    combinedDefenseChart.destroy();
+                }
+                
+                // Initialize security metrics chart
+                const securityMetricsCtx = document.getElementById('security-metrics-chart').getContext('2d');
+                securityMetricsChart = new Chart(securityMetricsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['السرية', 'السلامة', 'التوافر', 'المصادقة', 'التفويض'],
+                        datasets: [
+                            {
+                                label: 'بدون تقنيات أمان',
+                                data: [30, 25, 40, 20, 15],
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                            },
+                            {
+                                label: 'مع تقنيات أمان',
+                                data: [85, 80, 75, 90, 85],
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'مستوى الأمان (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Initialize risk analysis chart
+                const riskAnalysisCtx = document.getElementById('risk-analysis-chart').getContext('2d');
+                riskAnalysisChart = new Chart(riskAnalysisCtx, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [
+                            {
+                                label: 'هجوم DDoS',
+                                data: [{
+                                    x: 80, // احتمالية الحدوث
+                                    y: 70, // التأثير
+                                    r: 15  // حجم الفقاعة يمثل سهولة الاستغلال
+                                }],
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                            },
+                            {
+                                label: 'هجوم MitM',
+                                data: [{
+                                    x: 60,
+                                    y: 85,
+                                    r: 12
+                                }],
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                            },
+                            {
+                                label: 'شبكة روبوتية',
+                                data: [{
+                                    x: 75,
+                                    y: 90,
+                                    r: 18
+                                }],
+                                backgroundColor: 'rgba(255, 206, 86, 0.7)'
+                            },
+                            {
+                                label: 'ثغرات البرامج الثابتة',
+                                data: [{
+                                    x: 65,
+                                    y: 75,
+                                    r: 14
+                                }],
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                            },
+                            {
+                                label: 'انتهاكات الخصوصية',
+                                data: [{
+                                    x: 70,
+                                    y: 60,
+                                    r: 10
+                                }],
+                                backgroundColor: 'rgba(153, 102, 255, 0.7)'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        scales: {
+                            x: {
+                                min: 0,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'احتمالية الحدوث (%)'
+                                }
+                            },
+                            y: {
+                                min: 0,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'التأثير (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Initialize combined defense chart
+                const combinedDefenseCtx = document.getElementById('combined-defense-chart').getContext('2d');
+                combinedDefenseChart = new Chart(combinedDefenseCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['0', '1', '2', '3', '4'],
+                        datasets: [
+                            {
+                                label: 'تقنية واحدة',
+                                data: [0, 60, 75, 82, 85],
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                fill: true
+                            },
+                            {
+                                label: 'تقنيتان',
+                                data: [0, 70, 85, 92, 95],
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                fill: true
+                            },
+                            {
+                                label: 'ثلاث تقنيات أو أكثر',
+                                data: [0, 80, 92, 97, 99],
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'مستوى الحماية (%)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'عدد طبقات الدفاع'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Set up event listeners for comparison checkboxes
+                document.getElementById('compare-blockchain').addEventListener('change', updateCombinedDefenseChart);
+                document.getElementById('compare-ml').addEventListener('change', updateCombinedDefenseChart);
+                document.getElementById('compare-edge').addEventListener('change', updateCombinedDefenseChart);
+                document.getElementById('compare-encryption').addEventListener('change', updateCombinedDefenseChart);
+                
+                console.log('Metrics charts initialized');
+            } catch (error) {
+                console.error('Error initializing metrics charts:', error);
+            }
+        }
+
+        function updateCombinedDefenseChart() {
+            try {
+                const blockchain = document.getElementById('compare-blockchain').checked;
+                const ml = document.getElementById('compare-ml').checked;
+                const edge = document.getElementById('compare-edge').checked;
+                const encryption = document.getElementById('compare-encryption').checked;
+                
+                // Count selected technologies
+                const selectedCount = [blockchain, ml, edge, encryption].filter(Boolean).length;
+                
+                // Update chart visibility based on selection
+                combinedDefenseChart.data.datasets.forEach((dataset, index) => {
+                    if (index === 0) { // Single technology
+                        dataset.hidden = selectedCount !== 1;
+                    } else if (index === 1) { // Two technologies
+                        dataset.hidden = selectedCount !== 2;
+                    } else if (index === 2) { // Three or more technologies
+                        dataset.hidden = selectedCount < 3;
+                    }
+                });
+                
+                combinedDefenseChart.update();
+            } catch (error) {
+                console.error('Error updating combined defense chart:', error);
+            }
+        }
+
+        // Password Strength Meter
+        function initPasswordStrengthMeter() {
+            try {
+                const passwordInput = document.getElementById('password-input');
+                const passwordStrength = document.getElementById('password-strength');
+                const passwordFeedback = document.getElementById('password-feedback');
+                const crackTime = document.getElementById('crack-time');
+                
+                if (!passwordInput || !passwordStrength || !passwordFeedback || !crackTime) {
+                    console.error('Password strength meter elements not found');
+                    return;
+                }
+                
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    const strength = calculatePasswordStrength(password);
+                    
+                    // Update strength bar
+                    passwordStrength.style.width = `${strength}%`;
+                    
+                    // Update color based on strength
+                    if (strength < 30) {
+                        passwordStrength.className = 'bg-red-500 h-2.5 rounded-full';
+                        passwordFeedback.textContent = 'ضعيفة جدًا: استخدم كلمة مرور أطول مع مزيج من الأحرف والأرقام والرموز.';
+                        crackTime.textContent = 'دقائق إلى ساعات';
+                    } else if (strength < 60) {
+                        passwordStrength.className = 'bg-yellow-500 h-2.5 rounded-full';
+                        passwordFeedback.textContent = 'متوسطة: جيدة، ولكن يمكن تحسينها بإضافة المزيد من التنوع.';
+                        crackTime.textContent = 'أيام إلى أسابيع';
+                    } else if (strength < 80) {
+                        passwordStrength.className = 'bg-blue-500 h-2.5 rounded-full';
+                        passwordFeedback.textContent = 'قوية: كلمة مرور جيدة مع مزيج من الأحرف والأرقام والرموز.';
+                        crackTime.textContent = 'شهور إلى سنوات';
+                    } else {
+                        passwordStrength.className = 'bg-green-500 h-2.5 rounded-full';
+                        passwordFeedback.textContent = 'قوية جدًا: ممتازة! كلمة مرور طويلة ومعقدة.';
+                        crackTime.textContent = 'سنوات إلى قرون';
+                    }
+                });
+                
+                console.log('Password strength meter initialized');
+            } catch (error) {
+                console.error('Error initializing password strength meter:', error);
+            }
+        }
+
+        function calculatePasswordStrength(password) {
+            try {
+                if (!password) return 0;
+                
+                let strength = 0;
+                
+                // Length contribution (up to 40%)
+                const lengthContribution = Math.min(password.length * 4, 40);
+                strength += lengthContribution;
+                
+                // Character variety contribution (up to 60%)
+                const hasLowercase = /[a-z]/.test(password);
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasNumbers = /[0-9]/.test(password);
+                const hasSpecialChars = /[^A-Za-z0-9]/.test(password);
+                
+                const varietyCount = [hasLowercase, hasUppercase, hasNumbers, hasSpecialChars].filter(Boolean).length;
+                const varietyContribution = varietyCount * 15;
+                
+                strength += varietyContribution;
+                
+                return Math.min(strength, 100);
+            } catch (error) {
+                console.error('Error calculating password strength:', error);
+                return 0;
+            }
+        }
+
+        // Learning Path
+        function initLearningPath() {
+            try {
+                const mechanismSelect = document.getElementById('mechanism-select');
+                const nextStageButton = document.getElementById('next-stage');
+                
+                if (!mechanismSelect || !nextStageButton) {
+                    console.error('Learning path elements not found');
+                    return;
+                }
+                
+                mechanismSelect.addEventListener('change', updateMechanismDetails);
+                nextStageButton.addEventListener('click', advanceToNextStage);
+                
+                console.log('Learning path initialized');
+            } catch (error) {
+                console.error('Error initializing learning path:', error);
+            }
+        }
+
+        function updateMechanismDetails() {
+            try {
+                const mechanism = document.getElementById('mechanism-select').value;
+                const mechanismDetails = document.getElementById('mechanism-details');
+                
+                // Mechanism details content
+                const mechanismContent = {
+                    authentication: `
+                        <h5 class="font-bold mb-2">المصادقة والتفويض</h5>
+                        <p class="mb-2">المصادقة هي عملية التحقق من هوية جهاز أو مستخدم، بينما التفويض يحدد ما يمكن لهذا الجهاز أو المستخدم الوصول إليه.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h6 class="font-bold mb-2">تجربة: تأثير قوة كلمة المرور</h6>
+                            <div class="mb-2">
+                                <label class="block mb-1">أدخل كلمة مرور للاختبار:</label>
+                                <input type="text" id="password-input" class="w-full p-2 border border-gray-300 rounded" placeholder="أدخل كلمة مرور...">
+                            </div>
+                            <div class="mb-2">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="password-strength" class="bg-red-500 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <p id="password-feedback" class="text-sm text-gray-600">أدخل كلمة مرور للحصول على تقييم.</p>
+                            <p class="text-sm mt-2">الوقت التقديري للكسر: <span id="crack-time">-</span></p>
+                        </div>
+                    `,
+                    encryption: `
+                        <h5 class="font-bold mb-2">التشفير وسلامة البيانات</h5>
+                        <p class="mb-2">التشفير هو عملية تحويل المعلومات إلى رموز غير مفهومة لمنع الوصول غير المصرح به، بينما تضمن سلامة البيانات عدم تغيير البيانات أثناء النقل أو التخزين.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h6 class="font-bold mb-2">تجربة: مقارنة خوارزميات التشفير</h6>
+                            <div class="mb-4">
+                                <label class="block mb-1">اختر خوارزمية التشفير:</label>
+                                <select id="encryption-algorithm" class="w-full p-2 border border-gray-300 rounded">
+                                    <option value="aes">AES (معيار التشفير المتقدم)</option>
+                                    <option value="ecc">ECC (تشفير المنحنى الإهليلجي)</option>
+                                    <option value="rsa">RSA (ريفست-شامير-أدلمان)</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h6 class="font-bold mb-1">قوة الأمان</h6>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                                        <div id="security-strength" class="bg-green-500 h-2.5 rounded-full" style="width: 90%"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-600">عالية جدًا</p>
+                                </div>
+                                <div>
+                                    <h6 class="font-bold mb-1">استهلاك الموارد</h6>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                                        <div id="resource-usage" class="bg-yellow-500 h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-600">متوسط</p>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    detection: `
+                        <h5 class="font-bold mb-2">كشف التسلل والشذوذ</h5>
+                        <p class="mb-2">أنظمة كشف التسلل تراقب حركة الشبكة للكشف عن النشاط المشبوه، بينما يستخدم كشف الشذوذ التعلم الآلي لتحديد الأنماط غير العادية.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h6 class="font-bold mb-2">تجربة: تحديد أنماط الهجوم</h6>
+                            <div class="mb-4">
+                                <p class="mb-2">راقب حركة الشبكة وحدد نمط الهجوم:</p>
+                                <div class="chart-container" style="height: 200px;">
+                                    <canvas id="traffic-pattern-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block mb-1">ما هو نوع الهجوم المحتمل؟</label>
+                                <select id="attack-pattern" class="w-full p-2 border border-gray-300 rounded">
+                                    <option value="">-- اختر نوع الهجوم --</option>
+                                    <option value="ddos">هجوم حجب الخدمة الموزع (DDoS)</option>
+                                    <option value="scan">مسح المنافذ</option>
+                                    <option value="bruteforce">هجوم القوة الغاشمة</option>
+                                    <option value="normal">حركة مرور طبيعية</option>
+                                </select>
+                            </div>
+                            <div id="attack-feedback" class="mt-2 hidden"></div>
+                        </div>
+                    `
+                };
+                
+                // Update mechanism details
+                mechanismDetails.innerHTML = mechanismContent[mechanism];
+                
+                // Reinitialize password strength meter if needed
+                if (mechanism === 'authentication') {
+                    initPasswordStrengthMeter();
+                }
+                
+                // Initialize encryption comparison if needed
+                if (mechanism === 'encryption') {
+                    initEncryptionComparison();
+                }
+                
+                // Initialize traffic pattern chart if needed
+                if (mechanism === 'detection') {
+                    setTimeout(() => {
+                        initTrafficPatternChart();
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error updating mechanism details:', error);
+            }
+        }
+
+        function initEncryptionComparison() {
+            try {
+                const encryptionAlgorithm = document.getElementById('encryption-algorithm');
+                const securityStrength = document.getElementById('security-strength');
+                const resourceUsage = document.getElementById('resource-usage');
+                
+                if (!encryptionAlgorithm || !securityStrength || !resourceUsage) {
+                    console.error('Encryption comparison elements not found');
+                    return;
+                }
+                
+                encryptionAlgorithm.addEventListener('change', function() {
+                    const algorithm = this.value;
+                    
+                    // Update security strength and resource usage based on algorithm
+                    if (algorithm === 'aes') {
+                        securityStrength.style.width = '90%';
+                        securityStrength.className = 'bg-green-500 h-2.5 rounded-full';
+                        securityStrength.nextElementSibling.textContent = 'عالية جدًا';
+                        
+                        resourceUsage.style.width = '70%';
+                        resourceUsage.className = 'bg-yellow-500 h-2.5 rounded-full';
+                        resourceUsage.nextElementSibling.textContent = 'متوسط';
+                    } else if (algorithm === 'ecc') {
+                        securityStrength.style.width = '85%';
+                        securityStrength.className = 'bg-green-500 h-2.5 rounded-full';
+                        securityStrength.nextElementSibling.textContent = 'عالية';
+                        
+                        resourceUsage.style.width = '40%';
+                        resourceUsage.className = 'bg-green-500 h-2.5 rounded-full';
+                        resourceUsage.nextElementSibling.textContent = 'منخفض';
+                    } else if (algorithm === 'rsa') {
+                        securityStrength.style.width = '95%';
+                        securityStrength.className = 'bg-green-500 h-2.5 rounded-full';
+                        securityStrength.nextElementSibling.textContent = 'عالية جدًا';
+                        
+                        resourceUsage.style.width = '90%';
+                        resourceUsage.className = 'bg-red-500 h-2.5 rounded-full';
+                        resourceUsage.nextElementSibling.textContent = 'عالي';
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing encryption comparison:', error);
+            }
+        }
+
+        let trafficPatternChart;
+
+        function initTrafficPatternChart() {
+            try {
+                // Generate random traffic pattern data (simulating a DDoS attack)
+                const labels = Array.from({ length: 20 }, (_, i) => i + 1);
+                const normalData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 20) + 10);
+                const attackData = Array.from({ length: 20 }, (_, i) => {
+                    if (i < 10) {
+                        return Math.floor(Math.random() * 20) + 10;
+                    } else {
+                        return Math.floor(Math.random() * 80) + 50;
+                    }
+                });
+                
+                const ctx = document.getElementById('traffic-pattern-chart').getContext('2d');
+                
+                if (trafficPatternChart) {
+                    trafficPatternChart.destroy();
+                }
+                
+                trafficPatternChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'حركة مرور الشبكة',
+                            data: attackData,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'حجم حركة المرور (طلبات/ثانية)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'الوقت (ثواني)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Add event listener for attack pattern selection
+                const attackPattern = document.getElementById('attack-pattern');
+                const attackFeedback = document.getElementById('attack-feedback');
+                
+                if (attackPattern && attackFeedback) {
+                    attackPattern.addEventListener('change', function() {
+                        const selectedPattern = this.value;
+                        attackFeedback.classList.remove('hidden');
+                        
+                        if (selectedPattern === 'ddos') {
+                            attackFeedback.className = 'mt-2 text-green-600';
+                            attackFeedback.textContent = 'صحيح! هذا نمط نموذجي لهجوم حجب الخدمة الموزع (DDoS) حيث تزداد حركة المرور بشكل كبير ومفاجئ.';
+                        } else {
+                            attackFeedback.className = 'mt-2 text-red-600';
+                            attackFeedback.textContent = 'غير صحيح. لاحظ الزيادة المفاجئة والكبيرة في حركة المرور بعد الثانية 10، وهي علامة على هجوم DDoS.';
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error initializing traffic pattern chart:', error);
+            }
+        }
+
+        function advanceToNextStage() {
+            try {
+                // Get current stage
+                const currentStage = parseInt(document.querySelector('#learning-stage-content h4').textContent.split(':')[0].split(' ')[1]);
+                
+                // Content for each stage
+                const stageContent = {
+                    2: `
+                        <h4 class="font-bold mb-2">المرحلة 2: فهم التفاعلات البسيطة</h4>
+                        <p class="mb-4">في هذه المرحلة، نستكشف كيف تتفاعل آليات الأمان المختلفة مع بعضها البعض، وكيف يمكن للمهاجمين استغلال نقاط الضعف في هذه التفاعلات.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h5 class="font-bold mb-2">تجربة: تفاعل المصادقة والتشفير</h5>
+                            <p class="mb-4">اختبر كيف يؤثر مستوى التشفير على أمان عملية المصادقة:</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block mb-1">مستوى التشفير:</label>
+                                    <select id="encryption-level" class="w-full p-2 border border-gray-300 rounded">
+                                        <option value="none">بدون تشفير</option>
+                                        <option value="basic">تشفير أساسي</option>
+                                        <option value="strong">تشفير قوي</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block mb-1">طريقة المصادقة:</label>
+                                    <select id="auth-method" class="w-full p-2 border border-gray-300 rounded">
+                                        <option value="password">كلمة مرور فقط</option>
+                                        <option value="2fa">المصادقة الثنائية</option>
+                                        <option value="certificate">شهادات رقمية</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button id="test-interaction" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                اختبار التفاعل
+                            </button>
+                            
+                            <div id="interaction-result" class="mt-4 hidden"></div>
+                        </div>
+                    `,
+                    3: `
+                        <h4 class="font-bold mb-2">المرحلة 3: فهم الأنظمة المتوسطة</h4>
+                        <p class="mb-4">في هذه المرحلة، نستكشف كيف تعمل مجموعات من آليات الأمان معًا في أنظمة متوسطة التعقيد، مثل شبكة منزلية ذكية.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h5 class="font-bold mb-2">تجربة: تأمين شبكة منزلية ذكية</h5>
+                            <p class="mb-4">قم بتكوين إعدادات الأمان لشبكة منزلية تتضمن أجهزة متعددة:</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="border border-gray-200 rounded p-3">
+                                    <h6 class="font-bold mb-2">بوابة الشبكة</h6>
+                                    <label class="block mb-1">
+                                        <input type="checkbox" id="gateway-firewall" checked class="ml-2">
+                                        جدار حماية
+                                    </label>
+                                    <label class="block mb-1">
+                                        <input type="checkbox" id="gateway-ids" class="ml-2">
+                                        نظام كشف التسلل
+                                    </label>
+                                    <label class="block">
+                                        <input type="checkbox" id="gateway-updates" class="ml-2">
+                                        تحديثات تلقائية
+                                    </label>
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded p-3">
+                                    <h6 class="font-bold mb-2">أجهزة المراقبة</h6>
+                                    <label class="block mb-1">
+                                        <input type="checkbox" id="camera-encryption" class="ml-2">
+                                        تشفير البيانات
+                                    </label>
+                                    <label class="block mb-1">
+                                        <input type="checkbox" id="camera-auth" checked class="ml-2">
+                                        مصادقة قوية
+                                    </label>
+                                    <label class="block">
+                                        <input type="checkbox" id="camera-isolation" class="ml-2">
+                                        عزل الشبكة
+                                    </label>
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded p-3">
+                                    <h6 class="font-bold mb-2">أجهزة التحكم</h6>
+                                    <label class="block mb-1">
+                                        <input type="checkbox" id="control-encryption" checked class="ml-2">
+                                        تشفير الأوامر
+                                    </label>
+                                    <label class="block mb-1">
+                                        <input type="checkbox" id="control-auth" class="ml-2">
+                                        مصادقة متعددة العوامل
+                                    </label>
+                                    <label class="block">
+                                        <input type="checkbox" id="control-logging" class="ml-2">
+                                        تسجيل النشاط
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button id="evaluate-security" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                تقييم مستوى الأمان
+                            </button>
+                            
+                            <div id="security-evaluation" class="mt-4 hidden"></div>
+                        </div>
+                    `,
+                    4: `
+                        <h4 class="font-bold mb-2">المرحلة 4: فهم الأنظمة المعقدة</h4>
+                        <p class="mb-4">في هذه المرحلة النهائية، نستكشف كيف تعمل أنظمة أمان إنترنت الأشياء المعقدة في بيئات واسعة النطاق مثل المدن الذكية أو المصانع الذكية.</p>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                            <h5 class="font-bold mb-2">تجربة: إدارة أمان مدينة ذكية</h5>
+                            <p class="mb-4">قم بتخصيص استراتيجية أمنية متكاملة لمدينة ذكية تتضمن أنظمة متعددة:</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <h6 class="font-bold mb-2">الأولويات الأمنية</h6>
+                                    <p class="text-sm mb-2">رتب الأولويات من 1 (الأعلى) إلى 5 (الأدنى):</p>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <select class="priority-select ml-2 p-1 border border-gray-300 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3" selected>3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                            <span>حماية البنية التحتية الحيوية</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <select class="priority-select ml-2 p-1 border border-gray-300 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2" selected>2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                            <span>خصوصية بيانات المواطنين</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <select class="priority-select ml-2 p-1 border border-gray-300 rounded">
+                                                <option value="1" selected>1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                            <span>توافر الخدمات الأساسية</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <select class="priority-select ml-2 p-1 border border-gray-300 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4" selected>4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                            <span>سلامة البيانات وموثوقيتها</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <select class="priority-select ml-2 p-1 border border-gray-300 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5" selected>5</option>
+                                            </select>
+                                            <span>سهولة الاستخدام والوصول</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h6 class="font-bold mb-2">تخصيص الموارد</h6>
+                                    <p class="text-sm mb-2">وزع 100 نقطة من الموارد على مجالات الأمان المختلفة:</p>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input type="number" min="0" max="100" value="30" class="resource-allocation ml-2 w-16 p-1 border border-gray-300 rounded">
+                                            <span>الوقاية (جدران الحماية، التشفير)</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="number" min="0" max="100" value="25" class="resource-allocation ml-2 w-16 p-1 border border-gray-300 rounded">
+                                            <span>الكشف (أنظمة كشف التسلل، مراقبة الشذوذ)</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="number" min="0" max="100" value="20" class="resource-allocation ml-2 w-16 p-1 border border-gray-300 rounded">
+                                            <span>الاستجابة (فرق الاستجابة، أتمتة الدفاع)</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="number" min="0" max="100" value="15" class="resource-allocation ml-2 w-16 p-1 border border-gray-300 rounded">
+                                            <span>التعافي (النسخ الاحتياطي، خطط الطوارئ)</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="number" min="0" max="100" value="10" class="resource-allocation ml-2 w-16 p-1 border border-gray-300 rounded">
+                                            <span>التوعية والتدريب</span>
+                                        </div>
+                                    </div>
+                                    <p id="resource-total" class="mt-2 text-sm">المجموع: 100 نقطة</p>
+                                </div>
+                            </div>
+                            
+                            <button id="evaluate-strategy" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                تقييم الاستراتيجية
+                            </button>
+                            
+                            <div id="strategy-evaluation" class="mt-4 hidden"></div>
+                        </div>
+                    `
+                };
+                
+                // Update stage content
+                if (currentStage < 4) {
+                    const nextStage = currentStage + 1;
+                    document.getElementById('learning-stage-content').innerHTML = stageContent[nextStage];
+                    
+                    // Update progress indicator
+                    document.querySelectorAll('.w-10.h-10.rounded-full').forEach((indicator, index) => {
+                        if (index < nextStage) {
+                            indicator.classList.remove('bg-gray-300');
+                            indicator.classList.add('bg-blue-500', 'text-white');
+                        }
+                    });
+                    
+                    // Initialize stage-specific functionality
+                    if (nextStage === 2) {
+                        initStage2Functionality();
+                    } else if (nextStage === 3) {
+                        initStage3Functionality();
+                    } else if (nextStage === 4) {
+                        initStage4Functionality();
+                    }
+                }
+            } catch (error) {
+                console.error('Error advancing to next stage:', error);
+            }
+        }
+
+        function initStage2Functionality() {
+            try {
+                const testInteractionButton = document.getElementById('test-interaction');
+                const interactionResult = document.getElementById('interaction-result');
+                
+                if (!testInteractionButton || !interactionResult) {
+                    console.error('Stage 2 elements not found');
+                    return;
+                }
+                
+                testInteractionButton.addEventListener('click', function() {
+                    const encryptionLevel = document.getElementById('encryption-level').value;
+                    const authMethod = document.getElementById('auth-method').value;
+                    
+                    interactionResult.classList.remove('hidden');
+                    
+                    // Evaluate security based on combination
+                    if (encryptionLevel === 'none') {
+                        interactionResult.className = 'mt-4 p-3 bg-red-100 text-red-800 rounded';
+                        interactionResult.innerHTML = `
+                            <h6 class="font-bold mb-1">مستوى أمان منخفض!</h6>
+                            <p>بدون تشفير، يمكن اعتراض بيانات المصادقة بسهولة، حتى مع ${getAuthMethodName(authMethod)}.</p>
+                            <p class="mt-2">المخاطر: هجمات الرجل في الوسط، سرقة بيانات الاعتماد، انتحال الهوية.</p>
+                        `;
+                    } else if (encryptionLevel === 'basic' && authMethod === 'password') {
+                        interactionResult.className = 'mt-4 p-3 bg-yellow-100 text-yellow-800 rounded';
+                        interactionResult.innerHTML = `
+                            <h6 class="font-bold mb-1">مستوى أمان متوسط</h6>
+                            <p>التشفير الأساسي مع كلمة مرور فقط يوفر حماية أساسية ولكنه عرضة للهجمات المتقدمة.</p>
+                            <p class="mt-2">المخاطر: هجمات القوة الغاشمة، هجمات القاموس، الهندسة الاجتماعية.</p>
+                        `;
+                    } else if ((encryptionLevel === 'basic' && (authMethod === '2fa' || authMethod === 'certificate')) || 
+                               (encryptionLevel === 'strong' && authMethod === 'password')) {
+                        interactionResult.className = 'mt-4 p-3 bg-blue-100 text-blue-800 rounded';
+                        interactionResult.innerHTML = `
+                            <h6 class="font-bold mb-1">مستوى أمان جيد</h6>
+                            <p>هذه المجموعة توفر مستوى جيد من الحماية للاستخدامات العامة.</p>
+                            <p class="mt-2">المخاطر المتبقية: ثغرات التنفيذ، هجمات متقدمة مستهدفة.</p>
+                        `;
+                    } else if (encryptionLevel === 'strong' && (authMethod === '2fa' || authMethod === 'certificate')) {
+                        interactionResult.className = 'mt-4 p-3 bg-green-100 text-green-800 rounded';
+                        interactionResult.innerHTML = `
+                            <h6 class="font-bold mb-1">مستوى أمان عالي</h6>
+                            <p>هذه المجموعة توفر حماية قوية ضد معظم التهديدات الشائعة والمتقدمة.</p>
+                            <p class="mt-2">المخاطر المتبقية: هجمات متطورة للغاية، تهديدات داخلية.</p>
+                        `;
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing stage 2 functionality:', error);
+            }
+        }
+
+        function initStage3Functionality() {
+            try {
+                const evaluateSecurityButton = document.getElementById('evaluate-security');
+                const securityEvaluation = document.getElementById('security-evaluation');
+                
+                if (!evaluateSecurityButton || !securityEvaluation) {
+                    console.error('Stage 3 elements not found');
+                    return;
+                }
+                
+                evaluateSecurityButton.addEventListener('click', function() {
+                    // Get security settings
+                    const gatewayFirewall = document.getElementById('gateway-firewall').checked;
+                    const gatewayIDS = document.getElementById('gateway-ids').checked;
+                    const gatewayUpdates = document.getElementById('gateway-updates').checked;
+                    
+                    const cameraEncryption = document.getElementById('camera-encryption').checked;
+                    const cameraAuth = document.getElementById('camera-auth').checked;
+                    const cameraIsolation = document.getElementById('camera-isolation').checked;
+                    
+                    const controlEncryption = document.getElementById('control-encryption').checked;
+                    const controlAuth = document.getElementById('control-auth').checked;
+                    const controlLogging = document.getElementById('control-logging').checked;
+                    
+                    // Calculate security score
+                    let securityScore = 0;
+                    if (gatewayFirewall) securityScore += 10;
+                    if (gatewayIDS) securityScore += 15;
+                    if (gatewayUpdates) securityScore += 10;
+                    
+                    if (cameraEncryption) securityScore += 10;
+                    if (cameraAuth) securityScore += 10;
+                    if (cameraIsolation) securityScore += 15;
+                    
+                    if (controlEncryption) securityScore += 10;
+                    if (controlAuth) securityScore += 15;
+                    if (controlLogging) securityScore += 5;
+                    
+                    // Display evaluation
+                    securityEvaluation.classList.remove('hidden');
+                    
+                    let evaluationClass, evaluationTitle, evaluationText, recommendations;
+                    
+                    if (securityScore < 40) {
+                        evaluationClass = 'bg-red-100 text-red-800';
+                        evaluationTitle = 'مستوى أمان ضعيف';
+                        evaluationText = 'الشبكة معرضة بشدة للعديد من أنواع الهجمات.';
+                        recommendations = [
+                            'تفعيل جدار الحماية على البوابة كحد أدنى',
+                            'تطبيق المصادقة القوية على جميع الأجهزة',
+                            'تفعيل التشفير لحماية البيانات الحساسة'
+                        ];
+                    } else if (securityScore < 70) {
+                        evaluationClass = 'bg-yellow-100 text-yellow-800';
+                        evaluationTitle = 'مستوى أمان متوسط';
+                        evaluationText = 'الشبكة محمية من بعض التهديدات الأساسية ولكنها لا تزال عرضة للهجمات المتقدمة.';
+                        recommendations = [
+                            'إضافة نظام كشف التسلل لتحسين المراقبة',
+                            'تطبيق عزل الشبكة لأجهزة المراقبة الحساسة',
+                            'تفعيل التحديثات التلقائية لسد الثغرات الأمنية'
+                        ];
+                    } else if (securityScore < 90) {
+                        evaluationClass = 'bg-blue-100 text-blue-800';
+                        evaluationTitle = 'مستوى أمان جيد';
+                        evaluationText = 'الشبكة محمية بشكل جيد ضد معظم التهديدات الشائعة.';
+                        recommendations = [
+                            'تطبيق المصادقة متعددة العوامل لأجهزة التحكم',
+                            'تفعيل تسجيل النشاط لتحسين التحقيق في الحوادث',
+                            'تنفيذ اختبارات أمنية دورية'
+                        ];
+                    } else {
+                        evaluationClass = 'bg-green-100 text-green-800';
+                        evaluationTitle = 'مستوى أمان عالي';
+                        evaluationText = 'الشبكة محمية بشكل جيد ضد مجموعة واسعة من التهديدات.';
+                        recommendations = [
+                            'الحفاظ على تحديث جميع الأنظمة والبرامج',
+                            'إجراء مراجعات أمنية دورية',
+                            'مراقبة التهديدات الناشئة والتكيف معها'
+                        ];
+                    }
+                    
+                    securityEvaluation.className = `mt-4 p-3 rounded ${evaluationClass}`;
+                    securityEvaluation.innerHTML = `
+                        <h6 class="font-bold mb-1">${evaluationTitle} (${securityScore}/100)</h6>
+                        <p>${evaluationText}</p>
+                        <h6 class="font-bold mt-2 mb-1">التوصيات:</h6>
+                        <ul class="list-disc list-inside">
+                            ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error initializing stage 3 functionality:', error);
+            }
+        }
+
+        function initStage4Functionality() {
+            try {
+                const evaluateStrategyButton = document.getElementById('evaluate-strategy');
+                const strategyEvaluation = document.getElementById('strategy-evaluation');
+                const resourceAllocationInputs = document.querySelectorAll('.resource-allocation');
+                const resourceTotal = document.getElementById('resource-total');
+                
+                if (!evaluateStrategyButton || !strategyEvaluation || !resourceAllocationInputs || !resourceTotal) {
+                    console.error('Stage 4 elements not found');
+                    return;
+                }
+                
+                // Update resource total when inputs change
+                resourceAllocationInputs.forEach(input => {
+                    input.addEventListener('input', updateResourceTotal);
+                });
+                
+                function updateResourceTotal() {
+                    let total = 0;
+                    resourceAllocationInputs.forEach(input => {
+                        total += parseInt(input.value) || 0;
+                    });
+                    
+                    resourceTotal.textContent = `المجموع: ${total} نقطة`;
+                    
+                    if (total > 100) {
+                        resourceTotal.className = 'mt-2 text-sm text-red-600 font-bold';
+                    } else if (total < 100) {
+                        resourceTotal.className = 'mt-2 text-sm text-yellow-600 font-bold';
+                    } else {
+                        resourceTotal.className = 'mt-2 text-sm text-green-600';
+                    }
+                }
+                
+                // Evaluate security strategy
+                evaluateStrategyButton.addEventListener('click', function() {
+                    // Get priorities
+                    const priorities = Array.from(document.querySelectorAll('.priority-select')).map(select => parseInt(select.value));
+                    
+                    // Get resource allocation
+                    const resourceAllocation = Array.from(resourceAllocationInputs).map(input => parseInt(input.value) || 0);
+                    const totalResources = resourceAllocation.reduce((sum, value) => sum + value, 0);
+                    
+                    // Check if resources add up to 100
+                    if (totalResources !== 100) {
+                        strategyEvaluation.classList.remove('hidden');
+                        strategyEvaluation.className = 'mt-4 p-3 bg-yellow-100 text-yellow-800 rounded';
+                        strategyEvaluation.innerHTML = `
+                            <h6 class="font-bold mb-1">تحذير: مجموع الموارد غير صحيح</h6>
+                            <p>مجموع الموارد المخصصة يجب أن يكون 100 نقطة. المجموع الحالي: ${totalResources} نقطة.</p>
+                        `;
+                        return;
+                    }
+                    
+                    // Evaluate strategy
+                    let strategyScore = 0;
+                    
+                    // Check if highest priority (1) has appropriate resource allocation
+                    const highestPriorityIndex = priorities.indexOf(1);
+                    if (highestPriorityIndex !== -1 && resourceAllocation[highestPriorityIndex] >= 25) {
+                        strategyScore += 20;
+                    }
+                    
+                    // Check for balanced approach
+                    const hasBalancedApproach = resourceAllocation.every(value => value >= 10);
+                    if (hasBalancedApproach) {
+                        strategyScore += 20;
+                    }
+                    
+                    // Check for prevention focus
+                    if (resourceAllocation[0] >= 25) {
+                        strategyScore += 15;
+                    }
+                    
+                    // Check for detection capabilities
+                    if (resourceAllocation[1] >= 20) {
+                        strategyScore += 15;
+                    }
+                    
+                    // Check for response and recovery
+                    if (resourceAllocation[2] + resourceAllocation[3] >= 30) {
+                        strategyScore += 15;
+                    }
+                    
+                    // Check for awareness and training
+                    if (resourceAllocation[4] >= 10) {
+                        strategyScore += 15;
+                    }
+                    
+                    // Display evaluation
+                    strategyEvaluation.classList.remove('hidden');
+                    
+                    let evaluationClass, evaluationTitle, evaluationText, strengths, weaknesses;
+                    
+                    if (strategyScore < 40) {
+                        evaluationClass = 'bg-red-100 text-red-800';
+                        evaluationTitle = 'استراتيجية ضعيفة';
+                        evaluationText = 'هذه الاستراتيجية تترك المدينة الذكية عرضة للعديد من التهديدات.';
+                        strengths = ['لا توجد نقاط قوة بارزة'];
+                        weaknesses = [
+                            'عدم التوازن في تخصيص الموارد',
+                            'عدم التركيز على الأولويات العليا',
+                            'نقص في التكامل بين طبقات الدفاع'
+                        ];
+                    } else if (strategyScore < 70) {
+                        evaluationClass = 'bg-yellow-100 text-yellow-800';
+                        evaluationTitle = 'استراتيجية متوسطة';
+                        evaluationText = 'هذه الاستراتيجية توفر بعض الحماية ولكنها تحتاج إلى تحسين.';
+                        strengths = [
+                            'بعض التركيز على الأولويات الصحيحة',
+                            'تغطية أساسية لمعظم جوانب الأمان'
+                        ];
+                        weaknesses = [
+                            'عدم كفاية الموارد في بعض المجالات الحرجة',
+                            'قد تكون غير فعالة ضد التهديدات المتقدمة'
+                        ];
+                    } else if (strategyScore < 90) {
+                        evaluationClass = 'bg-blue-100 text-blue-800';
+                        evaluationTitle = 'استراتيجية جيدة';
+                        evaluationText = 'هذه الاستراتيجية متوازنة وتوفر حماية جيدة للمدينة الذكية.';
+                        strengths = [
+                            'توازن جيد بين الوقاية والكشف والاستجابة',
+                            'تركيز مناسب على الأولويات العليا',
+                            'تغطية شاملة لمعظم جوانب الأمان'
+                        ];
+                        weaknesses = [
+                            'قد تحتاج إلى تعديل لمواجهة التهديدات الناشئة',
+                            'بعض المجالات قد تستفيد من موارد إضافية'
+                        ];
+                    } else {
+                        evaluationClass = 'bg-green-100 text-green-800';
+                        evaluationTitle = 'استراتيجية ممتازة';
+                        evaluationText = 'هذه الاستراتيجية شاملة ومتوازنة وتوفر حماية قوية للمدينة الذكية.';
+                        strengths = [
+                            'توازن ممتاز بين جميع جوانب الأمان',
+                            'تركيز قوي على الأولويات العليا',
+                            'نهج متكامل يجمع بين الوقاية والكشف والاستجابة',
+                            'اهتمام كافٍ بالتوعية والتدريب'
+                        ];
+                        weaknesses = [
+                            'قد تكون مكلفة للتنفيذ والصيانة',
+                            'تتطلب تنسيقًا عاليًا بين أصحاب المصلحة المتعددين'
+                        ];
+                    }
+                    
+                    strategyEvaluation.className = `mt-4 p-3 rounded ${evaluationClass}`;
+                    strategyEvaluation.innerHTML = `
+                        <h6 class="font-bold mb-1">${evaluationTitle} (${strategyScore}/100)</h6>
+                        <p>${evaluationText}</p>
+                        <h6 class="font-bold mt-2 mb-1">نقاط القوة:</h6>
+                        <ul class="list-disc list-inside">
+                            ${strengths.map(strength => `<li>${strength}</li>`).join('')}
+                        </ul>
+                        <h6 class="font-bold mt-2 mb-1">نقاط الضعف:</h6>
+                        <ul class="list-disc list-inside">
+                            ${weaknesses.map(weakness => `<li>${weakness}</li>`).join('')}
+                        </ul>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error initializing stage 4 functionality:', error);
+            }
+        }
+
+        function getAuthMethodName(authMethod) {
+            const authMethodNames = {
+                'password': 'كلمة مرور فقط',
+                '2fa': 'المصادقة الثنائية',
+                'certificate': 'الشهادات الرقمية'
+            };
+            return authMethodNames[authMethod] || authMethod;
+        }
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>
